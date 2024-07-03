@@ -1,13 +1,11 @@
 import re
-from djoser.serializers import UserCreateSerializer, UserSerializer
-from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
 
 from api.core_views import Base64ImageField, create_ingredients
-from recipes.models import (Favorite, Ingredient,
-                            Recipe, RecipeIngredient,
-                            ShoppingCart, Tag,
-                            User, Subscription)
+from djoser.serializers import UserCreateSerializer, UserSerializer
+from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                            ShoppingCart, Subscription, Tag, User)
+from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 
 
 class UserSignUpSerializer(UserCreateSerializer):
