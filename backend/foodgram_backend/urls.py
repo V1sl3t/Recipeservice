@@ -11,10 +11,10 @@ v1_router.register(r'recipes', RecipeViewSet, basename='recipes')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('users/subscriptions/',
+    path('api/users/subscriptions/',
          UserSubscriptionsViewSet.as_view({'get': 'list'})),
-    path('users/<int:user_id>/subscribe/', UserSubscribeView.as_view()),
-    path('', include(v1_router.urls)),
-    path('', include('djoser.urls')),
-    path('auth/', include('djoser.urls.authtoken')),
+    path('api/users/<int:user_id>/subscribe/', UserSubscribeView.as_view()),
+    path('api/', include(v1_router.urls)),
+    path('api/', include('djoser.urls')),
+    path('api/auth/', include('djoser.urls.authtoken')),
 ]
