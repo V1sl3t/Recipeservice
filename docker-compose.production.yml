@@ -30,8 +30,8 @@ services:
     depends_on:
       - backend
   
-  nginx:
-    image: nginx:1.25.4-alpine
+  infra:
+    image: v1sl3t/foodgram_infra
     ports:
       - "80:80"
     volumes:
