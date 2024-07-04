@@ -18,8 +18,8 @@ services:
     image: v1sl3t/foodgram_backend
     env_file: .env
     volumes:
-      - static:/backend_static/
-      - media:/media/
+      - static:/app/static/
+      - media:/app/media/
     depends_on:
       - db
   
@@ -33,11 +33,11 @@ services:
   infra:
     image: v1sl3t/foodgram_infra
     ports:
-      - "8500:80"
+      - "8500:8500"
     volumes:
       - ../frontend/build:/usr/share/nginx/html/
       - ../docs/:/usr/share/nginx/html/api/docs/
-      - static:/static/
-      - media:/media/
+      - static:/var/html/static/
+      - media:/var/html/media/
     depends_on:
       - backend
