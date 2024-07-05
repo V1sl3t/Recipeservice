@@ -33,7 +33,7 @@ services:
   infra:
     image: v1sl3t/foodgram_infra
     ports:
-      - "8500:8500"
+      - "8500:80"
     volumes:
       - ../frontend/build:/usr/share/nginx/html/
       - ../docs/:/usr/share/nginx/html/api/docs/
