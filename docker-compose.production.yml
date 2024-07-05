@@ -18,7 +18,7 @@ services:
     image: v1sl3t/foodgram_backend
     env_file: .env
     volumes:
-      - static:/app/static/
+      - static:/backend_static/
       - media:/app/media/
     depends_on:
       - db
