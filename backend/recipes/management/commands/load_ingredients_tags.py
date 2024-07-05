@@ -1,6 +1,5 @@
 import csv
 
-from django.conf import settings
 from django.core.management import BaseCommand
 
 from recipes.models import (Ingredient, Tag)
@@ -15,7 +14,7 @@ class Command(BaseCommand):
             {'name': 'Ужин', 'slug': 'dinner'}]
         Tag.objects.bulk_create(Tag(**tag) for tag in data)
         with open(
-            f'{settings.BASE_DIR}/data/ingridients.csv',
+            '/data/ingridients.csv',
             'r',
             encoding='utf-8'
         ) as file:
