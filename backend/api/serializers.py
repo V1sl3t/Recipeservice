@@ -2,7 +2,7 @@ import re
 from django.contrib.auth import get_user_model
 
 from api.core_views import Base64ImageField, create_ingredients
-from djoser.serializers import UserSerializer
+from djoser.serializers import UserCreateSerializer, UserSerializer
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             ShoppingCart, Subscription, Tag)
 from rest_framework import serializers
@@ -11,15 +11,14 @@ from rest_framework.validators import UniqueTogetherValidator
 User = get_user_model()
 
 
-class UserGetSerializer(UserSerializer):
-    """Сериализатор для работы с информацией о пользователях"""
-    is_subscribed = serializers.SerializerMethodField()
-    avatar = Base64ImageField()
+class UserSignUpSerializer(UserCreateSerializer):
+    """Сериализатор для регистрации пользователей."""
+    avatar = Base64ImageField(required=False)
 
     class Meta:
         model = User
         fields = ('email', 'id', 'username', 'first_name',
-                  'last_name', 'is_subscribed')
+                  'last_name', 'password', 'avatar')
 
     def validate_username(self, value):
         if value == "me":
@@ -27,6 +26,17 @@ class UserGetSerializer(UserSerializer):
         if not re.match(r"^[\w.@+-]+\Z", value):
             raise serializers.ValidationError("Incorrect username")
         return value
+
+
+class UserGetSerializer(UserSerializer):
+    """Сериализатор для работы с информацией о пользователях."""
+    avatar = Base64ImageField(required=False)
+    is_subscribed = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ('email', 'id', 'username', 'first_name',
+                  'last_name', 'is_subscribed', 'avatar')
 
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
