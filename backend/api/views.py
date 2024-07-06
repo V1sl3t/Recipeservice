@@ -20,6 +20,7 @@ from rest_framework.views import APIView
 
 class UserAvatarView(APIView):
     @action(
+        detail=True,
         permission_classes=[IsAdminAuthorOrReadOnly, ]
     )
     def patch(self, request):
