@@ -1,5 +1,6 @@
 from api.views import (IngredientViewSet, RecipeViewSet, TagViewSet,
-                       UserSubscribeView, UserSubscriptionsViewSet)
+                       UserSubscribeView, UserSubscriptionsViewSet,
+                       UserAvatarView)
 from django.contrib import admin
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
@@ -14,6 +15,7 @@ urlpatterns = [
     path("api/users/subscriptions/",
          UserSubscriptionsViewSet.as_view({'get': 'list'})),
     path("api/users/<int:user_id>/subscribe/", UserSubscribeView.as_view()),
+    path("api/users/me/avatar/", UserAvatarView.as_view()),
     path("api/", include(router.urls)),
     path("api/", include('djoser.urls')),
     path("api/auth/", include('djoser.urls.authtoken')),

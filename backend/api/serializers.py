@@ -1,36 +1,32 @@
 import re
+from django.contrib.auth import get_user_model
 
 from api.core_views import Base64ImageField, create_ingredients
-from djoser.serializers import UserCreateSerializer, UserSerializer
+from djoser.serializers import UserSerializer
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
-                            ShoppingCart, Subscription, Tag, User)
+                            ShoppingCart, Subscription, Tag)
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
+User = get_user_model()
 
-class UserSignUpSerializer(UserCreateSerializer):
-    """Сериализатор для регистрации пользователей."""
+
+class UserFoodgramSerializer(UserSerializer):
+    """Сериализатор для работы с информацией о пользователях."""
+    is_subscribed = serializers.SerializerMethodField()
+    avatar = Base64ImageField()
+
+    class Meta:
+        model = User
+        fields = ('email', 'id', 'username', 'first_name',
+                  'last_name', 'is_subscribed')
+
     def validate_username(self, value):
         if value == "me":
             raise serializers.ValidationError("Username can not be \"me\"")
         if not re.match(r"^[\w.@+-]+\Z", value):
             raise serializers.ValidationError("Incorrect username")
         return value
-
-    class Meta:
-        model = User
-        fields = ('email', 'id', 'username', 'first_name',
-                  'last_name', 'password')
-
-
-class UserGetSerializer(UserSerializer):
-    """Сериализатор для работы с информацией о пользователях."""
-    is_subscribed = serializers.SerializerMethodField()
-
-    class Meta:
-        model = User
-        fields = ('email', 'id', 'username', 'first_name',
-                  'last_name', 'is_subscribed')
 
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
@@ -47,7 +43,7 @@ class RecipeSmallSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'image', 'cooking_time')
 
 
-class UserSubscribeRepresentSerializer(UserGetSerializer):
+class UserSubscribeRepresentSerializer(UserFoodgramSerializer):
     """Сериализатор для предоставления информации
     о подписках пользователя.
     """
@@ -150,7 +146,7 @@ class IngredientPostSerializer(serializers.ModelSerializer):
 class RecipeGetSerializer(serializers.ModelSerializer):
     """Сериализатор для получения информации о рецепте."""
     tags = TagSerialiser(many=True, read_only=True)
-    author = UserGetSerializer(read_only=True)
+    author = UserFoodgramSerializer(read_only=True)
     ingredients = IngredientGetSerializer(many=True, read_only=True,
                                           source='recipeingredients')
     is_favorited = serializers.SerializerMethodField()

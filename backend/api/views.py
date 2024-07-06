@@ -4,8 +4,8 @@ from api.permissions import IsAdminAuthorOrReadOnly
 from api.serializers import (FavoriteSerializer, IngredientSerializer,
                              RecipeCreateSerializer, RecipeGetSerializer,
                              ShoppingCartSerializer, TagSerialiser,
-                             UserSubscribeRepresentSerializer,
-                             UserSubscribeSerializer)
+                             UserFoodgramSerializer,
+                             UserSubscribeRepresentSerializer)
 from django.db.models import Sum
 from django.shortcuts import HttpResponse, get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -18,11 +18,22 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 
+class UserAvatarView(APIView):
+    @action(
+        permission_classes=[IsAdminAuthorOrReadOnly, ]
+    )
+    def patch(self, request):
+        serializer = UserFoodgramSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
 class UserSubscribeView(APIView):
     """Создание/удаление подписки на пользователя."""
     def post(self, request, user_id):
         author = get_object_or_404(User, id=user_id)
-        serializer = UserSubscribeSerializer(
+        serializer = UserFoodgramSerializer(
             data={'user': request.user.id, 'author': author.id},
             context={'request': request}
         )
@@ -49,7 +60,7 @@ class UserSubscriptionsViewSet(mixins.ListModelMixin,
     serializer_class = UserSubscribeRepresentSerializer
 
     def get_queryset(self):
-        return User.objects.filter(following__user=self.request.user)
+        return User.objects.filter(subscription__user=self.request.user)
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):

@@ -27,6 +27,10 @@ class User(AbstractUser):
         max_length=150,
         blank=False,
     )
+    avatar = models.ImageField(
+        upload_to='recipes/images/avatars',
+        blank=True
+    )
 
     class Meta:
         constraints = [
@@ -108,7 +112,7 @@ class Recipe(models.Model):
     )
     name = models.CharField(max_length=200)
     image = models.ImageField(
-        upload_to='recipes/images/',
+        upload_to='recipes/images/recipes',
         blank=True,
     )
     text = models.TextField()
