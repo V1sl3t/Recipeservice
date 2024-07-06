@@ -12,7 +12,7 @@ User = get_user_model()
 
 
 class UserGetSerializer(UserSerializer):
-    """Сериализатор для работы с информацией о пользователях."""
+    """Сериализатор для работы с информацией о пользователях"""
     is_subscribed = serializers.SerializerMethodField()
     avatar = Base64ImageField()
 
