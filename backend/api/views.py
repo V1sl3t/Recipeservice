@@ -73,7 +73,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 class RecipeViewSet(viewsets.ModelViewSet):
     """Работа с рецептами. Создание/изменение/удаление рецепта.
     Получение информации о рецептах.
-    Добавление рецептов в избранное и список покупок.
+    Добавление рецептов в избранное и списокпокупок.
     Отправка файла со списком рецептов.
     """
     queryset = Recipe.objects.all()
