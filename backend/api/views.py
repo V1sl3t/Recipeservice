@@ -23,7 +23,7 @@ class UserAvatarView(APIView):
         detail=True,
         permission_classes=[IsAdminAuthorOrReadOnly, ]
     )
-    def patch(self, request):
+    def put(self, request):
         serializer = UserGetSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
