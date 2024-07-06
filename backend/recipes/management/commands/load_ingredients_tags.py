@@ -20,4 +20,6 @@ class Command(BaseCommand):
             encoding='utf-8'
         ) as file:
             Ingredient.objects.bulk_create(
-                Ingredient(**data) for data in csv.DictReader(file))
+                Ingredient(**data) for data in csv.DictReader(
+                    file,
+                    fieldnames=['name', 'measurement_unit']))
