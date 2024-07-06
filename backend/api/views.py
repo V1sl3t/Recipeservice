@@ -4,7 +4,7 @@ from api.permissions import IsAdminAuthorOrReadOnly
 from api.serializers import (FavoriteSerializer, IngredientSerializer,
                              RecipeCreateSerializer, RecipeGetSerializer,
                              ShoppingCartSerializer, TagSerialiser,
-                             UserFoodgramSerializer,
+                             UserGetSerializer,
                              UserSubscribeRepresentSerializer)
 from django.db.models import Sum
 from django.shortcuts import HttpResponse, get_object_or_404
@@ -24,7 +24,7 @@ class UserAvatarView(APIView):
         permission_classes=[IsAdminAuthorOrReadOnly, ]
     )
     def patch(self, request):
-        serializer = UserFoodgramSerializer(data=request.data)
+        serializer = UserGetSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -34,7 +34,7 @@ class UserSubscribeView(APIView):
     """Создание/удаление подписки на пользователя."""
     def post(self, request, user_id):
         author = get_object_or_404(User, id=user_id)
-        serializer = UserFoodgramSerializer(
+        serializer = UserGetSerializer(
             data={'user': request.user.id, 'author': author.id},
             context={'request': request}
         )

@@ -11,7 +11,7 @@ from rest_framework.validators import UniqueTogetherValidator
 User = get_user_model()
 
 
-class UserFoodgramSerializer(UserSerializer):
+class UserGetSerializer(UserSerializer):
     """Сериализатор для работы с информацией о пользователях."""
     is_subscribed = serializers.SerializerMethodField()
     avatar = Base64ImageField()
@@ -43,7 +43,7 @@ class RecipeSmallSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'image', 'cooking_time')
 
 
-class UserSubscribeRepresentSerializer(UserFoodgramSerializer):
+class UserSubscribeRepresentSerializer(UserGetSerializer):
     """Сериализатор для предоставления информации
     о подписках пользователя.
     """
@@ -146,7 +146,7 @@ class IngredientPostSerializer(serializers.ModelSerializer):
 class RecipeGetSerializer(serializers.ModelSerializer):
     """Сериализатор для получения информации о рецепте."""
     tags = TagSerialiser(many=True, read_only=True)
-    author = UserFoodgramSerializer(read_only=True)
+    author = UserGetSerializer(read_only=True)
     ingredients = IngredientGetSerializer(many=True, read_only=True,
                                           source='recipeingredients')
     is_favorited = serializers.SerializerMethodField()
