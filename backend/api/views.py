@@ -4,7 +4,7 @@ from api.permissions import IsAdminAuthorOrReadOnly
 from api.serializers import (FavoriteSerializer, IngredientSerializer,
                              RecipeCreateSerializer, RecipeGetSerializer,
                              ShoppingCartSerializer, TagSerialiser,
-                             UserGetSerializer, UserSubscribeSerializer,
+                             AvatarSerializer, UserSubscribeSerializer,
                              UserSubscribeRepresentSerializer)
 from django.db.models import Sum
 from django.shortcuts import HttpResponse, get_object_or_404
@@ -24,7 +24,7 @@ class UserAvatarView(APIView):
         permission_classes=[IsAdminAuthorOrReadOnly, ]
     )
     def put(self, request):
-        serializer = UserGetSerializer(data=request.data)
+        serializer = AvatarSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)

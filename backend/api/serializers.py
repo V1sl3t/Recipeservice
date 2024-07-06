@@ -11,6 +11,15 @@ from rest_framework.validators import UniqueTogetherValidator
 User = get_user_model()
 
 
+class AvatarSerializer(serializers.ModelSerializer):
+
+    avatar = Base64ImageField(required=False)
+
+    class Meta:
+        model = User
+        fields = ('avatar')
+
+
 class UserSignUpSerializer(UserCreateSerializer):
     """Сериализатор для регистрации пользователей."""
     avatar = Base64ImageField(required=False)
