@@ -19,6 +19,11 @@ class AvatarSerializer(serializers.ModelSerializer):
         model = User
         fields = ('avatar')
 
+    def update(self, instance, validated_data):
+        instance.avatar = validated_data.get('avatar', instance.avatar)
+        instance.save()
+        return instance
+
 
 class UserSignUpSerializer(UserCreateSerializer):
     """Сериализатор для регистрации пользователей."""

@@ -28,7 +28,7 @@ class User(AbstractUser):
         blank=False,
     )
     avatar = models.ImageField(
-        upload_to='recipes/images/avatars',
+        upload_to='avatars/',
         blank=True
     )
 
@@ -112,7 +112,7 @@ class Recipe(models.Model):
     )
     name = models.CharField(max_length=200)
     image = models.ImageField(
-        upload_to='recipes/images/recipes',
+        upload_to='images/',
         blank=True,
     )
     text = models.TextField()
