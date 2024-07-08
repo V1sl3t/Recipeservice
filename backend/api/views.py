@@ -12,11 +12,10 @@ from djoser.views import UserViewSet
 from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             ShoppingCart, Subscription, Tag, User)
-from rest_framework import mixins, status, viewsets
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from django_short_url.views import get_surl
 
 
@@ -41,39 +40,39 @@ class CustomUserViewSet(UserViewSet):
             user.avatar.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
-
-class UserSubscribeView(APIView):
-    """Создание/удаление подписки на пользователя."""
-    def post(self, request, user_id):
-        author = get_object_or_404(User, id=user_id)
-        serializer = UserSubscribeSerializer(
-            data={'user': request.user.id, 'author': author.id},
-            context={'request': request}
-        )
+    @action(detail=False,
+            permission_classes=[IsAuthenticated])
+    def subscriptions(self, request):
+        serializer = UserSubscribeRepresentSerializer(
+            context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return User.objects.filter(subscription__user=request.user)
 
-    def delete(self, request, user_id):
-        author = get_object_or_404(User, id=user_id)
-        if not Subscription.objects.filter(user=request.user,
-                                           author=author).exists():
-            return Response(
-                {'errors': 'Вы не подписаны на этого пользователя'},
-                status=status.HTTP_400_BAD_REQUEST
+    @action(detail=True,
+            methods=["POST", "DELETE"],
+            permission_classes=[IsAuthenticated])
+    def subscribe(self, request, id):
+        if request.method == "POST":
+            author = get_object_or_404(User, id=id)
+            serializer = UserSubscribeSerializer(
+                data={'user': request.user.id, 'author': author.id},
+                context={'request': request}
             )
-        Subscription.objects.get(user=request.user.id,
-                                 author=user_id).delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class UserSubscriptionsViewSet(mixins.ListModelMixin,
-                               viewsets.GenericViewSet):
-    """Получение списка всех подписок на пользователей."""
-    serializer_class = UserSubscribeRepresentSerializer
-
-    def get_queryset(self):
-        return User.objects.filter(subscription__user=self.request.user)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        if request.method == "DELETE":
+            author = get_object_or_404(User, id=id)
+            if not Subscription.objects.filter(user=request.user,
+                                               author=author).exists():
+                return Response(
+                    {'errors': 'Вы не подписаны на этого пользователя'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            Subscription.objects.get(user=request.user.id,
+                                     author=id).delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):

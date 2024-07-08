@@ -1,5 +1,4 @@
 from api.views import (IngredientViewSet, RecipeViewSet, TagViewSet,
-                       UserSubscribeView, UserSubscriptionsViewSet,
                        CustomUserViewSet)
 from django.contrib import admin
 from django.urls import include, path, re_path
@@ -16,9 +15,6 @@ urlpatterns = [
         r'^s/', include('django_short_url.urls', namespace='django_short_url')
     ),
     path("admin/", admin.site.urls),
-    path("api/users/subscriptions/",
-         UserSubscriptionsViewSet.as_view({'get': 'list'})),
-    path("api/users/<int:user_id>/subscribe/", UserSubscribeView.as_view()),
     path("api/", include(router.urls)),
     path("api/", include('djoser.urls')),
     path("api/auth/", include('djoser.urls.authtoken')),
