@@ -110,7 +110,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(detail=True, url_path='get-link')
     def get_link(self, request, pk=None):
         short_url = get_surl(reverse('recipes-detail', kwargs={'pk': pk}))
-        return short_url
+        return Response({'short_url': f'{short_url}'},
+                        status=status.HTTP_200_OK)
 
     @action(
         detail=True,
