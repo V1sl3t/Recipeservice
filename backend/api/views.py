@@ -43,24 +43,6 @@ class CustomUserViewSet(UserViewSet):
             return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class UserAvatarView(APIView):
-
-    def patch(self, request):
-        user = request.user
-        serializer = AvatarSerializer(
-            user,
-            data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request):
-        user = request.user
-        user.avatar.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
 class UserSubscribeView(APIView):
     """Создание/удаление подписки на пользователя."""
     def post(self, request, user_id):
@@ -133,7 +115,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(detail=True, url_path='get-link')
     def get_link(self, request, pk=None):
         short_url = get_surl(reverse('recipes-detail', kwargs={'pk': pk}))
-        return Response({'short_url': f'{short_url}'},
+        return Response(f'{short_url}',
                         status=status.HTTP_200_OK)
 
     @action(
