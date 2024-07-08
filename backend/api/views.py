@@ -8,7 +8,6 @@ from api.serializers import (FavoriteSerializer, IngredientSerializer,
                              UserSubscribeRepresentSerializer)
 from django.db.models import Sum
 from django.shortcuts import HttpResponse, get_object_or_404
-from django.urls import reverse
 from djoser.views import UserViewSet
 from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
@@ -115,8 +114,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(detail=True, url_path='get-link')
     def get_link(self, request, pk=None):
         host = request.META['HTTP_HOST']
-        g = reverse('recipes-detail', kwargs={'pk': pk})
-        short_url = get_surl(f'{host}{g}')
+        short_url = get_surl(f'{host}recipes/{pk}')
         return Response({'short-link': f'{host}{short_url}'},
                         status=status.HTTP_200_OK)
 

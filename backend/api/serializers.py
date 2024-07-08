@@ -17,7 +17,7 @@ class AvatarSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('avatar')
+        fields = ('avatar', )
 
     def update(self, instance, validated_data):
         instance.avatar = validated_data.get('avatar', instance.avatar)
