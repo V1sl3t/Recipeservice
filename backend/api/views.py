@@ -16,6 +16,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django_short_url.views import get_surl
 
 
 class UserAvatarView(APIView):
@@ -105,6 +106,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return RecipeGetSerializer
         return RecipeCreateSerializer
 
+    @action(detail=True)
+    def get_link(self, request):
+        short_url = get_surl(request.path)
+        return short_url
+
     @action(
         detail=True,
         methods=['post', 'delete'],
@@ -162,5 +168,5 @@ class RecipeViewSet(viewsets.ModelViewSet):
             shopping_list.append(f'\n{name} - {amount}, {unit}')
         response = HttpResponse(shopping_list, content_type='text/plain')
         response['Content-Disposition'] = \
-            'attachment; filename="shopping_cart.txt"'
+            'attachment; filename="shopping_list.txt"'
         return response
