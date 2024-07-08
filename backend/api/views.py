@@ -25,7 +25,7 @@ class CustomUserViewSet(UserViewSet):
     @action(detail=True,
             methods=["PUT", "DELETE"],
             permission_classes=[IsAuthenticated])
-    def avatar(self, request):
+    def avatar(self, request, user_id=None):
         if request.method == "PUT":
             user = request.user
             serializer = AvatarSerializer(
@@ -115,7 +115,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(detail=True, url_path='get-link')
     def get_link(self, request, pk=None):
         short_url = get_surl(reverse('recipes-detail', kwargs={'pk': pk}))
-        return Response(f'{short_url}',
+        host = request.META['HTTP_HOST']
+        return Response({'short-link': f'{host}/{short_url}'},
                         status=status.HTTP_200_OK)
 
     @action(
