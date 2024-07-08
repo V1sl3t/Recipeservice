@@ -12,7 +12,7 @@ from djoser.views import UserViewSet
 from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             ShoppingCart, Subscription, Tag, User)
-from rest_framework import status, viewsets
+from rest_framework import reverse, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -47,7 +47,6 @@ class CustomUserViewSet(UserViewSet):
             data=request.data,
             context={'request': request})
         serializer.is_valid(raise_exception=True)
-        serializer.save()
         return User.objects.filter(subscription__user=request.user)
 
     @action(detail=True,
@@ -114,7 +113,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(detail=True, url_path='get-link')
     def get_link(self, request, pk=None):
         host = request.META['HTTP_HOST']
-        short_url = get_surl(f'recipes/{pk}')
+        url = reverse('recipes-detail', kwargs={'pk': pk})
+        short_url = get_surl(f'{url}')
         return Response({'short-link': f'{host}{short_url}'},
                         status=status.HTTP_200_OK)
 
