@@ -9,6 +9,7 @@ from api.serializers import (FavoriteSerializer, IngredientSerializer,
 from django.db.models import Sum
 from django.shortcuts import HttpResponse, get_object_or_404
 from django.urls import reverse
+from djoser.views import UserViewSet
 from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             ShoppingCart, Subscription, Tag, User)
@@ -18,6 +19,28 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django_short_url.views import get_surl
+
+
+class CustomUserViewSet(UserViewSet):
+    @action(detail=True,
+            methods=["PUT", "DELETE"],
+            permission_classes=[IsAuthenticated])
+    def avatar(self, request):
+        if request.method == "PUT":
+            user = request.user
+            serializer = AvatarSerializer(
+                user,
+                data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data,
+                                status=status.HTTP_201_CREATED)
+            return Response(serializer.errors,
+                            status=status.HTTP_400_BAD_REQUEST)
+        if request.method == "DELETE":
+            user = request.user
+            user.avatar.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class UserAvatarView(APIView):

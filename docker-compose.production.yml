@@ -19,7 +19,7 @@ services:
     env_file: .env
     volumes:
       - static:/backend_static/
-      - media:/media/
+      - media:/app/media/
     depends_on:
       - db
   
@@ -38,6 +38,6 @@ services:
       - ../frontend/build:/usr/share/nginx/html/
       - ../docs/:/usr/share/nginx/html/api/docs/
       - static:/static/
-      - media:/media/
+      - media:/app/media/
     depends_on:
       - backend
