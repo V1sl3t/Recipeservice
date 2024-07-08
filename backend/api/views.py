@@ -8,6 +8,7 @@ from api.serializers import (FavoriteSerializer, IngredientSerializer,
                              UserSubscribeRepresentSerializer)
 from django.db.models import Sum
 from django.shortcuts import HttpResponse, get_object_or_404
+from django.urls import reverse
 from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             ShoppingCart, Subscription, Tag, User)
@@ -106,9 +107,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return RecipeGetSerializer
         return RecipeCreateSerializer
 
-    @action(detail=True)
-    def get_link(self, request):
-        short_url = get_surl(request.path)
+    @action(detail=True, url_path='get-link')
+    def get_link(self, request, pk=None):
+        short_url = get_surl(reverse('recipe-detail', kwargs={'pk': pk}))
         return short_url
 
     @action(
@@ -116,7 +117,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         methods=['post', 'delete'],
         permission_classes=[IsAuthenticated, ]
     )
-    def favorite(self, request, pk):
+    def favorite(self, request, pk=None):
         """Работа с избранными рецептами.
         Удаление/добавление в избранное.
         """
@@ -134,7 +135,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         methods=['post', 'delete'],
         permission_classes=[IsAuthenticated, ]
     )
-    def shopping_cart(self, request, pk):
+    def shopping_cart(self, request, pk=None):
         """Работа со списком покупок.
         Удаление/добавление в список покупок.
         """
