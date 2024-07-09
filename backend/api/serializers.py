@@ -13,7 +13,7 @@ User = get_user_model()
 
 class AvatarSerializer(serializers.ModelSerializer):
 
-    avatar = Base64ImageField(required=False)
+    avatar = Base64ImageField(required=True)
 
     class Meta:
         model = User
@@ -183,11 +183,15 @@ class RecipeGetSerializer(serializers.ModelSerializer):
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
     ingredients = IngredientPostSerializer(
-        many=True, source='recipeingredients'
+        many=True,
+        source='recipeingredients',
+        required=True
     )
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
-        many=True
+        many=True,
+        required=True,
+        unique=True
     )
     image = Base64ImageField()
 
@@ -197,6 +201,10 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                   'name', 'text', 'cooking_time')
 
     def validate(self, data):
+        if data.get('cooking_time') < 1:
+            raise serializers.ValidationError(
+                'Время не может быть меньше 1'
+            )
         ingredients_list = []
         for ingredient in data.get('recipeingredients'):
             if ingredient.get('amount') <= 0:
