@@ -16,7 +16,7 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from django_short_url.views import get_surl
+from django_url_shortener.utils import shorten_url
 
 
 class CustomUserViewSet(UserViewSet):
@@ -45,7 +45,7 @@ class CustomUserViewSet(UserViewSet):
     def subscriptions(self, request):
         users = User.objects.filter(subscription__user=request.user)
         serializer = UserSubscribeRepresentSerializer(data=users, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.initial_data, status=status.HTTP_200_OK)
 
     @action(detail=True,
             methods=["POST", "DELETE"],
@@ -110,7 +110,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, url_path='get-link')
     def get_link(self, request, pk=None):
-        short_url = get_surl(f'recipes/{pk}')
+        created, short_url = shorten_url(f'{request.META["HTTP_HOST"]}recipes/{pk}')
         return Response(
             {'short-link': f'{request.META["HTTP_HOST"]}{short_url}'},
             status=status.HTTP_200_OK)

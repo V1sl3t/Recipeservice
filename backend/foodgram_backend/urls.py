@@ -11,9 +11,7 @@ router.register(r'tags', TagViewSet, basename='tags')
 router.register(r'recipes', RecipeViewSet, basename='recipes')
 
 urlpatterns = [
-    re_path(
-        r'^s/', include('django_short_url.urls', namespace='django_short_url')
-    ),
+    path('s/', include('django_url_shortener.urls')),
     path("admin/", admin.site.urls),
     path("api/", include(router.urls)),
     path("api/", include('djoser.urls')),
