@@ -120,6 +120,7 @@ class Recipe(models.Model):
         Ingredient,
         through='RecipeIngredient',
         verbose_name='Ингредиенты',
+        blank=False
     )
     tags = models.ManyToManyField(
         Tag,

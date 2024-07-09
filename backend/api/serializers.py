@@ -26,7 +26,7 @@ class AvatarSerializer(serializers.ModelSerializer):
 
 
 class UserSignUpSerializer(UserCreateSerializer):
-    avatar = Base64ImageField(required=False)
+    avatar = Base64ImageField()
 
     class Meta:
         model = User
@@ -71,10 +71,11 @@ class UserSubscribtionGetSerializer(UserGetSerializer):
 
     class Meta:
         model = User
-        fields = ('email', 'id', 'username', 'first_name',
+        fields = ('email', 'id', 'username', 'first_name', 'avatar'
                   'last_name', 'is_subscribed', 'recipes', 'recipes_count')
-        read_only_fields = ('email', 'username', 'first_name', 'last_name',
-                            'is_subscribed', 'recipes', 'recipes_count')
+        read_only_fields = (
+            'email', 'username', 'first_name', 'last_name',
+            'avatar', 'is_subscribed', 'recipes', 'recipes_count')
 
     def get_recipes(self, obj):
         request = self.context.get('request')
@@ -186,12 +187,14 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     ingredients = IngredientPostSerializer(
         many=True,
         source='recipeingredients',
+        allow_blank=False,
         required=True
     )
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
         many=True,
-        required=True,
+        allow_blank=False,
+        required=True
     )
     image = Base64ImageField()
 
@@ -208,15 +211,26 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         ingredients_list = []
+        tags_list = []
         for ingredient in data.get('recipeingredients'):
             if ingredient.get('amount') <= 0:
                 raise serializers.ValidationError(
                     'Количество не может быть меньше 1'
                 )
+            if not ingredient.exists():
+                raise serializers.ValidationError(
+                    'Такого ингредиента не существует'
+                )
             ingredients_list.append(ingredient.get('id'))
         if len(set(ingredients_list)) != len(ingredients_list):
             raise serializers.ValidationError(
                 'Вы пытаетесь добавить в рецепт два одинакоых ингредиента'
+            )
+        for tag in data.get('tags'):
+            tags_list.append(tag)
+        if len(set(tags_list)) != len(tags_list):
+            raise serializers.ValidationError(
+                'Вы пытаетесь добавить в рецепт два одинакоых тега'
             )
         return data
 
