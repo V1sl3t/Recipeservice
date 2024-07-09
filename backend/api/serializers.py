@@ -220,12 +220,20 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                     'Такого ингредиента не существует'
                 )
             ingredients_list.append(ingredient.get('id'))
+        if len(ingredients_list) == 0:
+            raise serializers.ValidationError(
+                'Вы пытаетесь добавить рецепт без ингредиентов'
+            )
         if len(set(ingredients_list)) != len(ingredients_list):
             raise serializers.ValidationError(
                 'Вы пытаетесь добавить в рецепт два одинакоых ингредиента'
             )
         for tag in data.get('tags'):
             tags_list.append(tag)
+        if len(tags_list) == 0:
+            raise serializers.ValidationError(
+                'Вы пытаетесь добавить рецепт без тега'
+            )
         if len(set(tags_list)) != len(tags_list):
             raise serializers.ValidationError(
                 'Вы пытаетесь добавить в рецепт два одинакоых тега'
