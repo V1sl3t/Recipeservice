@@ -215,7 +215,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     'Количество не может быть меньше 1'
                 )
-            if not ingredient.get('id').exists():
+            if not Ingredient.objects.filter(id=ingredient.get('id')).exists():
                 raise serializers.ValidationError(
                     'Такого ингредиента не существует'
                 )
