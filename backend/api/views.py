@@ -103,7 +103,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, url_path='get-link')
     def get_link(self, request, pk=None):
-        short_url = get_surl(f'https://foodgram.publicvm.com/recipes/{pk}')
+        short_url = get_surl(
+            f'https://{request.META["HTTP_HOST"]}/recipes/{pk}')
         return Response(
             {'short-link': f'{request.META["HTTP_HOST"]}{short_url}'},
             status=status.HTTP_200_OK)

@@ -64,7 +64,7 @@ class RecipeSmallSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'image', 'cooking_time')
 
 
-class UserSubscribtionGetSerializer(UserGetSerializer):
+class UserSubscribtionGetSerializer(serializers.ModelSerializer):
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 
