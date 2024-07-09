@@ -67,7 +67,7 @@ class RecipeSmallSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'image', 'cooking_time')
 
 
-class UserSubscribeRepresentSerializer(UserGetSerializer):
+class UserSubscribeRepresentSerializer(serializers.ModelSerializer):
     """Сериализатор для предоставлени информации
     о подписках пользователя.
     """
