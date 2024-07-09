@@ -72,9 +72,9 @@ class UserSubscribtionGetSerializer(UserGetSerializer):
     class Meta:
         model = User
         fields = ('email', 'id', 'username', 'first_name',
-                  'last_name', 'recipes', 'recipes_count')
+                  'last_name', 'is_subscribed', 'recipes', 'recipes_count')
         read_only_fields = ('email', 'username', 'first_name', 'last_name',
-                            'recipes', 'recipes_count')
+                            'is_subscribed', 'recipes', 'recipes_count')
 
     def get_recipes(self, obj):
         request = self.context.get('request')
