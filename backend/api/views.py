@@ -12,7 +12,7 @@ from djoser.views import UserViewSet
 from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             ShoppingCart, Subscription, Tag, User)
-from rest_framework import status, viewsets
+from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -40,13 +40,6 @@ class CustomUserViewSet(UserViewSet):
             user.avatar.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(detail=False,
-            permission_classes=[IsAuthenticated])
-    def subscriptions(self, request):
-        users = User.objects.filter(subscription__user=request.user)
-        serializer = UserSubscribtionGetSerializer(users, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
     @action(detail=True,
             methods=["POST", "DELETE"],
             permission_classes=[IsAuthenticated])
@@ -71,6 +64,14 @@ class CustomUserViewSet(UserViewSet):
             Subscription.objects.get(user=request.user.id,
                                      author=id).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class UserSubscriptionsViewSet(mixins.ListModelMixin,
+                               viewsets.GenericViewSet):
+    serializer_class = UserSubscribtionGetSerializer
+
+    def get_queryset(self):
+        return User.objects.filter(subscription__user=self.request.user)
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
