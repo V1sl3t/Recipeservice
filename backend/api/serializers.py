@@ -68,7 +68,7 @@ class RecipeSmallSerializer(serializers.ModelSerializer):
 
 
 class UserSubscribeRepresentSerializer(UserGetSerializer):
-    """Сериализатор для предоставления информации
+    """Сериализатор для предоставлени информации
     о подписках пользователя.
     """
     is_subscribed = serializers.SerializerMethodField()
