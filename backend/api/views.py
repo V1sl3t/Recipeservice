@@ -44,8 +44,8 @@ class CustomUserViewSet(UserViewSet):
             permission_classes=[IsAuthenticated])
     def subscriptions(self, request):
         users = User.objects.filter(subscription__user=request.user)
-        serializer = UserSubscribeRepresentSerializer(data=users, many=True)
-        return Response(serializer.initial_data, status=status.HTTP_200_OK)
+        serializer = UserSubscribeRepresentSerializer(users, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=True,
             methods=["POST", "DELETE"],
