@@ -26,7 +26,6 @@ class AvatarSerializer(serializers.ModelSerializer):
 
 
 class UserSignUpSerializer(UserCreateSerializer):
-    """Сериализатор для регистрации пользователей."""
     avatar = Base64ImageField(required=False)
 
     class Meta:
@@ -43,7 +42,6 @@ class UserSignUpSerializer(UserCreateSerializer):
 
 
 class UserGetSerializer(UserSerializer):
-    """Сериализатор для работы с информацией о пользователях."""
     avatar = Base64ImageField(required=False)
     is_subscribed = serializers.SerializerMethodField()
 
@@ -61,17 +59,12 @@ class UserGetSerializer(UserSerializer):
 
 
 class RecipeSmallSerializer(serializers.ModelSerializer):
-    """Сериализатор для работы с краткой информацией о рецепте."""
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
 
 
-class UserSubscribeRepresentSerializer(serializers.ModelSerializer):
-    """Сериализатор для предоставлени информации
-    о подписках пользователя.
-    """
-    is_subscribed = serializers.SerializerMethodField()
+class UserSubscribtionGetSerializer(UserGetSerializer):
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 
@@ -98,7 +91,6 @@ class UserSubscribeRepresentSerializer(serializers.ModelSerializer):
 
 
 class UserSubscribeSerializer(serializers.ModelSerializer):
-    """Сериализатор для подписки/отписки от пользователей."""
     class Meta:
         model = Subscription
         fields = '__all__'
@@ -120,29 +112,24 @@ class UserSubscribeSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         request = self.context.get('request')
-        return UserSubscribeRepresentSerializer(
+        return UserSubscribtionGetSerializer(
             instance.author, context={'request': request}
         ).data
 
 
 class TagSerialiser(serializers.ModelSerializer):
-    """Сериализатор для работы с тегами."""
     class Meta:
         model = Tag
         fields = '__all__'
 
 
 class IngredientSerializer(serializers.ModelSerializer):
-    """Сериализатор для работы с ингредиентами."""
     class Meta:
         model = Ingredient
         fields = '__all__'
 
 
 class IngredientGetSerializer(serializers.ModelSerializer):
-    """Сериализатор для получения информации об ингредиентах.
-    Используется при работе с рецептами.
-    """
     id = serializers.IntegerField(source='ingredient.id', read_only=True)
     name = serializers.CharField(source='ingredient.name', read_only=True)
     measurement_unit = serializers.CharField(
@@ -156,9 +143,6 @@ class IngredientGetSerializer(serializers.ModelSerializer):
 
 
 class IngredientPostSerializer(serializers.ModelSerializer):
-    """Сериализатор для добавления ингредиентов.
-    Используется при работе с рецептами.
-    """
     id = serializers.IntegerField()
     amount = serializers.IntegerField()
 
@@ -168,7 +152,6 @@ class IngredientPostSerializer(serializers.ModelSerializer):
 
 
 class RecipeGetSerializer(serializers.ModelSerializer):
-    """Сериализатор для получения информации о рецепте."""
     tags = TagSerialiser(many=True, read_only=True)
     author = UserGetSerializer(read_only=True)
     ingredients = IngredientGetSerializer(many=True, read_only=True,
@@ -199,7 +182,6 @@ class RecipeGetSerializer(serializers.ModelSerializer):
 
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
-    """Сериализатор для добаления/обновления рецепта."""
     ingredients = IngredientPostSerializer(
         many=True, source='recipeingredients'
     )
@@ -257,7 +239,6 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 
 
 class FavoriteSerializer(serializers.ModelSerializer):
-    """Сериализатор для работы с избранными рецептами."""
     class Meta:
         model = Favorite
         fields = '__all__'
@@ -278,7 +259,6 @@ class FavoriteSerializer(serializers.ModelSerializer):
 
 
 class ShoppingCartSerializer(serializers.ModelSerializer):
-    """Сериализатор для работы со списком покупок."""
     class Meta:
         model = ShoppingCart
         fields = '__all__'

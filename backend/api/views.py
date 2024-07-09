@@ -5,7 +5,7 @@ from api.serializers import (FavoriteSerializer, IngredientSerializer,
                              RecipeCreateSerializer, RecipeGetSerializer,
                              ShoppingCartSerializer, TagSerialiser,
                              AvatarSerializer, UserSubscribeSerializer,
-                             UserSubscribeRepresentSerializer)
+                             UserSubscribtionGetSerializer)
 from django.db.models import Sum
 from django.shortcuts import HttpResponse, get_object_or_404
 from djoser.views import UserViewSet
@@ -44,7 +44,7 @@ class CustomUserViewSet(UserViewSet):
             permission_classes=[IsAuthenticated])
     def subscriptions(self, request):
         users = User.objects.filter(subscription__user=request.user)
-        serializer = UserSubscribeRepresentSerializer(users, many=True)
+        serializer = UserSubscribtionGetSerializer(users, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=True,
@@ -74,7 +74,6 @@ class CustomUserViewSet(UserViewSet):
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
-    """Получение информации о тегах."""
     queryset = Tag.objects.all()
     serializer_class = TagSerialiser
     permission_classes = (AllowAny, )
@@ -82,7 +81,6 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
-    """Получение информации об ингредиентах."""
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (AllowAny, )
@@ -92,11 +90,6 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    """Работа с рецептами. Создание/изменение/удаление рецепта.
-    Получение информации о рецептах.
-    Добавление рецептов визбранное и списокпокупок.
-    Отправка файла со списком рецептов.
-    """
     queryset = Recipe.objects.all()
     permission_classes = (IsAdminAuthorOrReadOnly, )
     filter_backends = (DjangoFilterBackend,)
@@ -110,7 +103,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, url_path='get-link')
     def get_link(self, request, pk=None):
-        short_url = get_surl(f'recipes/{pk}')
+        short_url = get_surl(f'https://foodgram.publicvm.com/recipes/{pk}')
         return Response(
             {'short-link': f'{request.META["HTTP_HOST"]}{short_url}'},
             status=status.HTTP_200_OK)
@@ -121,9 +114,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[IsAuthenticated, ]
     )
     def favorite(self, request, pk=None):
-        """Работа с избранными рецептами.
-        Удаление/добавление в избранное.
-        """
         recipe = get_object_or_404(Recipe, id=pk)
         if request.method == 'POST':
             return create_model_instance(request, recipe, FavoriteSerializer)
@@ -139,9 +129,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[IsAuthenticated, ]
     )
     def shopping_cart(self, request, pk=None):
-        """Работа со списком покупок.
-        Удаление/добавление в список покупок.
-        """
         recipe = get_object_or_404(Recipe, id=pk)
         if request.method == 'POST':
             return create_model_instance(request, recipe,
@@ -158,7 +145,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[IsAuthenticated, ]
     )
     def download_shopping_cart(self, request):
-        """Отправка файла со списком покупок."""
         ingredients = RecipeIngredient.objects.filter(
             recipe__carts__user=request.user
         ).values(
