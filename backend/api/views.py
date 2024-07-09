@@ -43,7 +43,7 @@ class CustomUserViewSet(UserViewSet):
     @action(detail=False,
             permission_classes=[IsAuthenticated])
     def subscriptions(self, request):
-        users = User.objects.all.filter(subscription__user=request.user)
+        users = User.objects.all().filter(subscription__user=request.user)
         serializer = UserSubscribeRepresentSerializer(data=users, many=True)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
