@@ -26,7 +26,7 @@ class AvatarSerializer(serializers.ModelSerializer):
 
 
 class UserSignUpSerializer(UserCreateSerializer):
-    avatar = Base64ImageField()
+    avatar = Base64ImageField(required=False)
 
     class Meta:
         model = User
