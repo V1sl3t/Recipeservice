@@ -43,12 +43,10 @@ class CustomUserViewSet(UserViewSet):
     @action(detail=False,
             permission_classes=[IsAuthenticated])
     def subscriptions(self, request):
-        serializer = UserSubscribeRepresentSerializer(
-            data=request.data,
-            context={'request': request})
+        users = User.objects.filter(subscription__user=request.user)
+        serializer = UserSubscribeRepresentSerializer(users)
         serializer.is_valid(raise_exception=True)
-        return Response(User.objects.filter(subscription__user=request.user),
-                        status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=True,
             methods=["POST", "DELETE"],
@@ -114,7 +112,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(detail=True, url_path='get-link')
     def get_link(self, request, pk=None):
         host = request.META['HTTP_HOST']
-        short_url = get_surl(request.build_absolute_uri(f'/{pk}/'))
+        short_url = get_surl(request.build_absolute_uri())
         return Response({'short-link': f'{host}{short_url}'},
                         status=status.HTTP_200_OK)
 
