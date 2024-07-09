@@ -64,7 +64,8 @@ class RecipeSmallSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'image', 'cooking_time')
 
 
-class UserSubscribtionGetSerializer(serializers.ModelSerializer):
+class UserSubscribtionGetSerializer(UserGetSerializer):
+    is_subscribed = serializers.SerializerMethodField()
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 
@@ -200,11 +201,13 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         fields = ('ingredients', 'tags', 'image',
                   'name', 'text', 'cooking_time')
 
-    def validate(self, data):
-        if data.get('cooking_time') < 1:
+    def validate_cooking_time(self, value):
+        if value < 1:
             raise serializers.ValidationError(
-                'Время не может быть меньше 1'
-            )
+                'Время не может быть меньше 1')
+        return value
+
+    def validate(self, data):
         ingredients_list = []
         for ingredient in data.get('recipeingredients'):
             if ingredient.get('amount') <= 0:

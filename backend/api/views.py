@@ -20,6 +20,13 @@ from django_short_url.views import get_surl
 
 
 class CustomUserViewSet(UserViewSet):
+    @action(
+        detail=False,
+        permission_classes=[IsAuthenticated]
+    )
+    def me(self, request, *args, **kwargs):
+        return super().me(request, *args, **kwargs)
+
     @action(detail=True,
             methods=["PUT", "DELETE"],
             permission_classes=[IsAuthenticated])
