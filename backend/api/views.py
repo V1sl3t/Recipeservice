@@ -16,7 +16,7 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from django_url_shortener.utils import shorten_url
+from django_short_url.views import get_surl
 
 
 class CustomUserViewSet(UserViewSet):
@@ -110,8 +110,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, url_path='get-link')
     def get_link(self, request, pk=None):
-        created, short_url = shorten_url(
-            f'{request.META["HTTP_HOST"]}recipes/{pk}')
+        short_url = get_surl(f'recipes/{pk}')
         return Response(
             {'short-link': f'{request.META["HTTP_HOST"]}{short_url}'},
             status=status.HTTP_200_OK)
