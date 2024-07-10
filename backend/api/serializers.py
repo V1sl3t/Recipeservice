@@ -26,12 +26,11 @@ class AvatarSerializer(serializers.ModelSerializer):
 
 
 class UserSignUpSerializer(UserCreateSerializer):
-    avatar = Base64ImageField(required=False)
 
     class Meta:
         model = User
         fields = ('email', 'id', 'username', 'first_name',
-                  'last_name', 'password', 'avatar')
+                  'last_name', 'password')
 
     def validate_username(self, value):
         if value == "me":
@@ -208,6 +207,9 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         return value
 
     def validate(self, data):
+        if data.get('recipeingredients') or data.get('tags') is None:
+            raise serializers.ValidationError(
+                'Не переданно нужного поля')
         ingredients_list = []
         tags_list = []
         for ingredient in data.get('recipeingredients'):
