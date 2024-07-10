@@ -141,32 +141,6 @@ class Recipe(models.Model):
         return self.name
 
 
-class RecipeIngredient(models.Model):
-    recipe = models.ForeignKey(
-        Recipe,
-        related_name='recipeingredients',
-        verbose_name='Рецепт',
-        on_delete=models.CASCADE,
-    )
-    ingredient = models.ForeignKey(
-        Ingredient,
-        related_name='recipeingredients',
-        verbose_name='Ингредиент',
-        on_delete=models.CASCADE,
-    )
-    amount = models.IntegerField(
-        'Количество',
-    )
-
-    class Meta:
-        constraints = [
-            models.CheckConstraint(check=Q(amount__gte=1),
-                                   name='amount__gte=1'),
-        ]
-        verbose_name = 'Ингредиент в рецепте'
-        verbose_name_plural = 'Ингредиенты в рецепте'
-
-
 class Favorite(models.Model):
     recipe = models.ForeignKey(
         Recipe,
@@ -224,3 +198,29 @@ class ShoppingCart(models.Model):
     def __str__(self):
         return (f'{self.recipe.name} в списке покупок у '
                 f'{self.user.username}')
+
+
+class RecipeIngredient(models.Model):
+    recipe = models.ForeignKey(
+        Recipe,
+        related_name='recipeingredients',
+        verbose_name='Рецепт',
+        on_delete=models.CASCADE,
+    )
+    ingredient = models.ForeignKey(
+        Ingredient,
+        related_name='recipeingredients',
+        verbose_name='Ингредиент',
+        on_delete=models.CASCADE,
+    )
+    amount = models.IntegerField(
+        'Количество',
+    )
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(check=Q(amount__gte=1),
+                                   name='amount__gte=1'),
+        ]
+        verbose_name = 'Ингредиент в рецепте'
+        verbose_name_plural = 'Ингредиенты в рецепте'
