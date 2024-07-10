@@ -207,7 +207,8 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         return value
 
     def validate(self, data):
-        if data.keys['ingredients'] or data.get('tags') is None:
+        if (data.get('ingredients') and data.get('recipeingredients')) \
+                or data.get('tags') is None:
             raise serializers.ValidationError(
                 'Не переданно нужного поля')
         ingredients_list = []
