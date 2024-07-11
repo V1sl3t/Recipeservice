@@ -147,7 +147,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return self.create_recipe_user_instance(
             request,
             FavoriteSerializer,
-            instance=get_object_or_404(Recipe, id=pk))
+            get_object_or_404(Recipe, id=pk))
 
     @favorite.mapping.delete
     def delete_favorite(self, request, pk=None):
@@ -155,7 +155,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             request,
             Favorite,
             'У вас нет этого рецепта в избранном',
-            instance=get_object_or_404(Recipe, id=pk))
+            get_object_or_404(Recipe, id=pk))
 
     @action(
         detail=True,
