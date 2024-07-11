@@ -173,7 +173,7 @@ class RecipeGetSerializer(serializers.ModelSerializer):
     tags = TagSerialiser(many=True, read_only=True)
     author = UserGetSerializer(read_only=True)
     ingredients = IngredientGetSerializer(many=True, read_only=True,
-                                          source='recipeingredients')
+                                          source='recipe_ingredients')
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
     image = Base64ImageField(required=False)
@@ -202,7 +202,7 @@ class RecipeGetSerializer(serializers.ModelSerializer):
 class RecipeCreateSerializer(serializers.ModelSerializer):
     ingredients = IngredientPostSerializer(
         many=True,
-        source='recipeingredients',
+        source='recipe_ingredients',
         allow_null=False,
     )
     tags = serializers.PrimaryKeyRelatedField(
@@ -225,7 +225,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         return value
 
     def validate(self, data):
-        if data.get('recipeingredients') is None:
+        if data.get('recipe_ingredients') is None:
             raise serializers.ValidationError(
                 'Не переданно поля ingredients')
         if data.get('tags') is None:
@@ -233,7 +233,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                 'Не переданно поля tags')
         ingredients_list = []
         tags_list = []
-        for ingredient in data.get('recipeingredients'):
+        for ingredient in data.get('recipe_ingredients'):
             if ingredient.get('amount') <= constants.MIN_AMOUNT_VALUE \
                     or ingredient.get('amount') >= constants.MAX_AMOUNT_VALUE:
                 raise serializers.ValidationError(
@@ -268,7 +268,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         request = self.context.get('request')
-        ingredients = validated_data.pop('recipeingredients')
+        ingredients = validated_data.pop('recipe_ingredients')
         tags = validated_data.pop('tags')
         recipe = Recipe.objects.create(author=request.user, **validated_data)
         recipe.tags.set(tags)
@@ -276,7 +276,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         return recipe
 
     def update(self, instance, validated_data):
-        ingredients = validated_data.pop('recipeingredients')
+        ingredients = validated_data.pop('recipe_ingredients')
         tags = validated_data.pop('tags')
         instance.tags.clear()
         instance.tags.set(tags)
