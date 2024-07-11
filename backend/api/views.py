@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from django_short_url.views import get_surl
 
 from api.filters import IngredientFilter, RecipeFilter
-from api.permissions import IsStaffAuthorOrReadOnly
+from api.permissions import IsStaffAuthenticatedAuthorOrReadOnly
 from api.serializers import (FavoriteSerializer, IngredientSerializer,
                              RecipeCreateSerializer, RecipeGetSerializer,
                              ShoppingCartSerializer, TagSerialiser,
@@ -137,7 +137,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
-    permission_classes = (IsAuthenticated, IsStaffAuthorOrReadOnly,)
+    permission_classes = (IsStaffAuthenticatedAuthorOrReadOnly, )
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
     http_method_names = ['get', 'post', 'patch', 'delete']
