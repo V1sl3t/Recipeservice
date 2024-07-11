@@ -60,7 +60,6 @@ class Recipe(models.Model):
     image = models.ImageField(
         upload_to='images/',
         blank=True,
-        required=True
     )
     text = models.TextField()
     ingredients = models.ManyToManyField(
