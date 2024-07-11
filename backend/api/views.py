@@ -7,7 +7,7 @@ from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-# from django_short_url.views import get_surl
+from django_short_url.views import get_surl
 
 from api.filters import IngredientFilter, RecipeFilter
 from api.permissions import IsStaffAuthorOrReadOnly
@@ -147,13 +147,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return RecipeGetSerializer
         return RecipeCreateSerializer
 
-    '''@action(detail=True, url_path='get-link')
+    @action(detail=True, url_path='get-link')
     def get_link(self, request, pk=None):
         short_url = get_surl(
             f'https://{request.META["HTTP_HOST"]}/recipes/{pk}')
         return Response(
             {'short-link': f'{request.META["HTTP_HOST"]}{short_url}'},
-            status=status.HTTP_200_OK)'''
+            status=status.HTTP_200_OK)
 
     @action(
         detail=True,
