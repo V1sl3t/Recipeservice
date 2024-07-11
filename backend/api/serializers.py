@@ -75,6 +75,8 @@ class UserGetSerializer(UserSerializer):
 
 
 class RecipeSmallSerializer(serializers.ModelSerializer):
+    image = Base64ImageField()
+
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
@@ -176,7 +178,7 @@ class RecipeGetSerializer(serializers.ModelSerializer):
                                           source='recipe_ingredients')
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
-    image = Base64ImageField(required=False)
+    image = Base64ImageField()
 
     class Meta:
         model = Recipe
@@ -210,12 +212,17 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         many=True,
         allow_null=False,
     )
-    image = Base64ImageField()
+    image = Base64ImageField(required=True)
 
     class Meta:
         model = Recipe
         fields = ('ingredients', 'tags', 'image',
                   'name', 'text', 'cooking_time')
+
+    def validate_image(self, value):
+        if not value:
+            raise serializers.ValidationError(
+                'Поле image - пустое')
 
     def validate_cooking_time(self, value):
         if value < constants.MIN_VALUE or value > constants.MAX_VALUE:
