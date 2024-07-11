@@ -67,7 +67,7 @@ class Subscription(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['author', 'user'],
-                name='unique_together_author_user'
+                name='unique_together_author_users'
             )
         ]
         verbose_name = 'Подписка'

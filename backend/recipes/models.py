@@ -92,7 +92,7 @@ class RicipeUserModel(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['recipe', 'user'],
-                name='unique_together_recipe_user_favorite'
+                name='unique_together_recipe_user'
             )
         ]
         ordering = ['-id']
