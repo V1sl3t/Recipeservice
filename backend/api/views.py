@@ -52,7 +52,9 @@ def create_shopping_list(request):
         unit = ingredient['ingredient__measurement_unit']
         amount = ingredient['ingredient_amount']
         shopping_list.append(f'\n{name} - {amount}, {unit}')
-    return shopping_list
+    with open('my_file.txt', 'w') as cart:
+        cart.writelines(shopping_list)
+    return cart
 
 
 class FoodgramUserViewSet(UserViewSet):
@@ -195,6 +197,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def download_shopping_cart(self, request):
         shopping_list = create_shopping_list(request)
-        return FileResponse(shopping_list,
+        return FileResponse(open(shopping_list),
                             as_attachment=True,
                             filename='shopping_list.txt')

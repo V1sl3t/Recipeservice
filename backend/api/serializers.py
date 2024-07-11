@@ -75,7 +75,6 @@ class UserGetSerializer(UserSerializer):
 
 
 class RecipeSmallSerializer(serializers.ModelSerializer):
-    image = Base64ImageField()
 
     class Meta:
         model = Recipe
