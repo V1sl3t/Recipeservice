@@ -1,14 +1,31 @@
 import re
-from django.contrib.auth import get_user_model
 
-from api.core_views import Base64ImageField, create_ingredients
+from django.shortcuts import get_object_or_404
+from drf_extra_fields.fields import Base64ImageField
 from djoser.serializers import UserCreateSerializer, UserSerializer
-from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
-                            ShoppingCart, Subscription, Tag)
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
-User = get_user_model()
+from foodgram_backend import constants
+from recipes.models import (Favorite, Ingredient, Recipe,
+                            RecipeIngredient, ShoppingCart, Tag)
+from users.models import (User, Subscription)
+
+
+def create_ingredients(ingredients, recipe):
+    ingredient_list = []
+    for ingredient in ingredients:
+        current_ingredient = get_object_or_404(Ingredient,
+                                               id=ingredient.get('id'))
+        amount = ingredient.get('amount')
+        ingredient_list.append(
+            RecipeIngredient(
+                recipe=recipe,
+                ingredient=current_ingredient,
+                amount=amount
+            )
+        )
+    RecipeIngredient.objects.bulk_create(ingredient_list)
 
 
 class AvatarSerializer(serializers.ModelSerializer):
@@ -201,9 +218,10 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                   'name', 'text', 'cooking_time')
 
     def validate_cooking_time(self, value):
-        if value < 1:
+        if value < constants.MIN_VALUE or value > constants.MAX_VALUE:
             raise serializers.ValidationError(
-                'Время не может быть меньше 1')
+                f'Время не может быть меньше {constants.MIN_VALUE} '
+                f'и больше {constants.MAX_VALUE}')
         return value
 
     def validate(self, data):
@@ -216,16 +234,19 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         ingredients_list = []
         tags_list = []
         for ingredient in data.get('recipeingredients'):
-            if ingredient.get('amount') <= 0:
+            if ingredient.get('amount') <= constants.MIN_AMOUNT_VALUE \
+                    or ingredient.get('amount') >= constants.MAX_AMOUNT_VALUE:
                 raise serializers.ValidationError(
-                    'Количество не может быть меньше 1'
+                    f'Количество не может быть меньше '
+                    f'{constants.MIN_AMOUNT_VALUE} '
+                    f'и больше {constants.MAX_AMOUNT_VALUE}'
                 )
             if not Ingredient.objects.filter(id=ingredient.get('id')).exists():
                 raise serializers.ValidationError(
                     'Такого ингредиента не существует'
                 )
             ingredients_list.append(ingredient.get('id'))
-        if len(ingredients_list) == 0:
+        if not ingredients_list:
             raise serializers.ValidationError(
                 'Вы пытаетесь добавить рецепт без ингредиентов'
             )
@@ -235,7 +256,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             )
         for tag in data.get('tags'):
             tags_list.append(tag)
-        if len(tags_list) == 0:
+        if not tags_list:
             raise serializers.ValidationError(
                 'Вы пытаетесь добавить рецепт без тега'
             )
