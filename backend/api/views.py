@@ -145,17 +145,17 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def favorite(self, request, pk=None):
         return self.create_recipe_user_instance(
-            request,
-            FavoriteSerializer,
-            get_object_or_404(Recipe, id=pk))
+            request=request,
+            serializer=FavoriteSerializer,
+            instance=get_object_or_404(Recipe, id=pk))
 
     @favorite.mapping.delete
     def delete_favorite(self, request, pk=None):
         return self.delete_recipe_user_instance(
-            request,
-            Favorite,
-            'У вас нет этого рецепта в избранном',
-            get_object_or_404(Recipe, id=pk))
+            request=request,
+            model=Favorite,
+            error_message='У вас нет этого рецепта в избранном',
+            instance=get_object_or_404(Recipe, id=pk))
 
     @action(
         detail=True,
@@ -164,16 +164,16 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def shopping_cart(self, request, pk=None):
         return self.create_recipe_user_instance(
-            request,
-            ShoppingCartSerializer,
+            request=request,
+            serializer=ShoppingCartSerializer,
             instance=get_object_or_404(Recipe, id=pk))
 
     @shopping_cart.mapping.delete
     def delete_shopping_cart(self, request, pk=None):
         return self.delete_recipe_user_instance(
-            request,
-            ShoppingCart,
-            'У вас нет этого рецепта в списке покупок',
+            request=request,
+            model=ShoppingCart,
+            error_message='У вас нет этого рецепта в списке покупок',
             instance=get_object_or_404(Recipe, id=pk))
 
     @action(
