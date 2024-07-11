@@ -5,8 +5,6 @@ from django.core.exceptions import ValidationError
 
 from foodgram_backend import constants
 
-User = get_user_model
-
 
 def validate_username(value):
     if value.lower() == 'me':
@@ -50,6 +48,9 @@ class FoodgramUser(AbstractUser):
 
     def __str__(self):
         return self.username
+
+
+User = get_user_model()
 
 
 class Subscription(models.Model):
