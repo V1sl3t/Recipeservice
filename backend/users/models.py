@@ -1,11 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 
 from foodgram_backend import constants
-
-User = get_user_model()
 
 
 def validate_username(value):
@@ -15,7 +12,7 @@ def validate_username(value):
         )
 
 
-class FoodgramUser(AbstractUser):
+class User(AbstractUser):
     email = models.EmailField(
         max_length=constants.MAX_LENGTH,
         unique=True,
