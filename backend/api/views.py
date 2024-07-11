@@ -40,21 +40,14 @@ def delete_recipe_user_instance(request, model_name, instance, error_message):
     return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-def create_shopping_list(request):
-    ingredients = RecipeIngredient.objects.filter(
-        recipe__carts__user=request.user
-    ).values(
-        'ingredient__name', 'ingredient__measurement_unit'
-    ).annotate(ingredient_amount=Sum('amount'))
+def create_shopping_list(ingredients_queryset):
     shopping_list = ['Список покупок:\n']
-    for ingredient in ingredients:
+    for ingredient in ingredients_queryset:
         name = ingredient['ingredient__name']
         unit = ingredient['ingredient__measurement_unit']
         amount = ingredient['ingredient_amount']
         shopping_list.append(f'\n{name} - {amount}, {unit}')
-    with open('my_file.txt', 'w') as cart:
-        cart.writelines(shopping_list)
-    return cart
+    return shopping_list
 
 
 class FoodgramUserViewSet(UserViewSet):
@@ -196,7 +189,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[IsAuthenticated, ]
     )
     def download_shopping_cart(self, request):
-        shopping_list = create_shopping_list(request)
-        return FileResponse(open(shopping_list),
+        ingredients = RecipeIngredient.objects.filter(
+            recipe__carts__user=request.user
+        ).values(
+            'ingredient__name', 'ingredient__measurement_unit'
+        ).annotate(ingredient_amount=Sum('amount'))
+        shopping_list = create_shopping_list(ingredients)
+        return FileResponse(shopping_list,
                             as_attachment=True,
                             filename='shopping_list.txt')
