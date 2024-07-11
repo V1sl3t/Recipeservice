@@ -133,5 +133,3 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'api.pagination.PageLimitPagination',
     'PAGE_SIZE': 6,
 }
-
-ACCOUNT_AUTHENTICATION_METHOD = 'email'
