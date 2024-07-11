@@ -13,11 +13,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='user',
             name='avatar',
-            field=models.ImageField(blank=True, upload_to='recipes/images/avatars'),
+            field=models.ImageField(blank=True,
+                                    upload_to='recipes/images/avatars'),
         ),
         migrations.AlterField(
             model_name='recipe',
             name='image',
-            field=models.ImageField(blank=True, upload_to='recipes/images/recipes'),
+            field=models.ImageField(blank=True,
+                                    upload_to='recipes/images/recipes'),
         ),
     ]
