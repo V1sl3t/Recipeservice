@@ -192,6 +192,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ).values(
             'ingredient__name', 'ingredient__measurement_unit'
         ).annotate(ingredient_amount=Sum('amount'))
-        return FileResponse(shopping_list=create_shopping_list(ingredients),
+        return FileResponse(create_shopping_list(ingredients),
                             as_attachment=True,
                             filename='shopping_list.txt')
