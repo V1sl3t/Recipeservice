@@ -225,10 +225,12 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                 'Поле image - пустое')
 
     def validate_cooking_time(self, value):
-        if value < constants.MIN_VALUE or value > constants.MAX_VALUE:
+        if (value < constants.MIN_VALUE_COOCKING_TIME
+                or value > constants.MAX_VALUE_COOCKING_TIME):
             raise serializers.ValidationError(
-                f'Время не может быть меньше {constants.MIN_VALUE} '
-                f'и больше {constants.MAX_VALUE}')
+                f'Время не может быть меньше '
+                f'{constants.MIN_VALUE_COOCKING_TIME} '
+                f'и больше {constants.MAX_VALUE_COOCKING_TIME}')
         return value
 
     def validate(self, data):
