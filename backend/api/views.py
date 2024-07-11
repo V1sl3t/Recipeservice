@@ -113,7 +113,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return RecipeGetSerializer
         return RecipeCreateSerializer
 
-    def create_recipe_user_instance(request, instance, serializer):
+    def create_recipe_user_instance(request, serializer, instance):
         serializer = serializer(
             data={'user': request.user.id, 'recipe': instance.id, },
             context={'request': request}
