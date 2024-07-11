@@ -122,7 +122,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def delete_recipe_user_instance(request, model, instance, error_message):
+    def delete_recipe_user_instance(request, model, error_message, instance):
         if not model.objects.filter(user=request.user,
                                     recipe=instance).exists():
             return Response({'errors': error_message},
