@@ -113,7 +113,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return RecipeGetSerializer
         return RecipeCreateSerializer
 
-    def create_recipe_user_instance(request, serializer, instance):
+    def create_recipe_user_instance(self, request, serializer, instance):
         serializer = serializer(
             data={'user': request.user.id, 'recipe': instance.id, },
             context={'request': request}
@@ -122,7 +122,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def delete_recipe_user_instance(request, model, error_message, instance):
+    def delete_recipe_user_instance(
+            self,
+            request,
+            model,
+            error_message,
+            instance):
         if not model.objects.filter(user=request.user,
                                     recipe=instance).exists():
             return Response({'errors': error_message},
@@ -187,6 +192,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ).values(
             'ingredient__name', 'ingredient__measurement_unit'
         ).annotate(ingredient_amount=Sum('amount'))
-        return FileResponse(create_shopping_list(ingredients),
+        return FileResponse(shopping_list=create_shopping_list(ingredients),
                             as_attachment=True,
                             filename='shopping_list.txt')
