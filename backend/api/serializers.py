@@ -241,8 +241,8 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         ingredients_list = []
         tags_list = []
         for ingredient in data.get('recipe_ingredients'):
-            if ingredient.get('amount') <= constants.MIN_AMOUNT_VALUE \
-                    or ingredient.get('amount') >= constants.MAX_AMOUNT_VALUE:
+            if (ingredient.get('amount') <= constants.MIN_AMOUNT_VALUE
+                    or ingredient.get('amount') >= constants.MAX_AMOUNT_VALUE):
                 raise serializers.ValidationError(
                     f'Количество не может быть меньше '
                     f'{constants.MIN_AMOUNT_VALUE} '
@@ -259,7 +259,8 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             )
         if len(set(ingredients_list)) != len(ingredients_list):
             raise serializers.ValidationError(
-                'Вы пытаетесь добавить в рецепт два одинакоых ингредиента'
+                'Вы пытаетесь добавить в рецепт '
+                'несколько одинаковых ингредиентов'
             )
         for tag in data.get('tags'):
             tags_list.append(tag)
@@ -269,7 +270,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             )
         if len(set(tags_list)) != len(tags_list):
             raise serializers.ValidationError(
-                'Вы пытаетесь добавить в рецепт два одинакоых тега'
+                'Вы пытаетесь добавить в рецепт несколько одинаковых тегов'
             )
         return data
 

@@ -1,20 +1,13 @@
 from django.db import models
-from django.core.exceptions import ValidationError
 from django.contrib.auth.models import AbstractUser
 
 from foodgram_backend import constants
-
-
-def validate_username(value):
-    if value.lower() == 'me':
-        raise ValidationError(
-            'Недопустимое имя пользователя!'
-        )
+from .validators import validate_username
 
 
 class User(AbstractUser):
     email = models.EmailField(
-        max_length=constants.MAX_LENGTH,
+        max_length=constants.MAX_LENGTH_EMAIL,
         unique=True,
     )
     username = models.CharField(

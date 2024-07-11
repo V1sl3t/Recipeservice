@@ -6,16 +6,22 @@ from users.models import User
 
 
 def validate_cooking_time(value):
-    if value < constants.MIN_VALUE or value > constants.MAX_VALUE:
+    if value < constants.MIN_VALUE_COOCKING_TIME \
+            or value > constants.MAX_VALUE_COOCKING_TIME:
         raise ValidationError(
-            'Недопустимое количество времени!'
+            f'Допустимое количество времени от '
+            f'{constants.MIN_VALUE_COOCKING_TIME} '
+            f'до {constants.MAX_VALUE_COOCKING_TIME} минут'
         )
 
 
 def validate_amount(value):
-    if value < constants.MIN_VALUE or value > constants.MAX_VALUE:
+    if value < constants.MIN_VALUE_AMOUNT \
+            or value > constants.MAX_VALUE_AMOUNT:
         raise ValidationError(
-            'Недопустимое количество ингредиентов!'
+            f'Допустимое количество ингредиентов от '
+            f'{constants.MIN_VALUE_AMOUNT} '
+            f'до {constants.MAX_VALUE_AMOUNT}'
         )
 
 
@@ -65,8 +71,7 @@ class Recipe(models.Model):
     ingredients = models.ManyToManyField(
         Ingredient,
         through='RecipeIngredient',
-        verbose_name='Ингредиенты',
-        blank=False
+        verbose_name='Ингредиенты'
     )
     tags = models.ManyToManyField(
         Tag,
@@ -86,6 +91,18 @@ class Recipe(models.Model):
 
 
 class RicipeUserModel(models.Model):
+    recipe = models.ForeignKey(
+        Recipe,
+        related_name='%(class)ss',
+        verbose_name='Рецепт',
+        on_delete=models.CASCADE,
+    )
+    user = models.ForeignKey(
+        User,
+        related_name='%(class)ss',
+        verbose_name='Пользователь',
+        on_delete=models.CASCADE,
+    )
 
     class Meta:
         abstract = True
@@ -99,18 +116,6 @@ class RicipeUserModel(models.Model):
 
 
 class Favorite(RicipeUserModel):
-    recipe = models.ForeignKey(
-        Recipe,
-        related_name='favorites',
-        verbose_name='Рецепт',
-        on_delete=models.CASCADE,
-    )
-    user = models.ForeignKey(
-        User,
-        related_name='favorites',
-        verbose_name='Пользователь',
-        on_delete=models.CASCADE,
-    )
 
     class Meta:
         verbose_name = 'Избранное'
@@ -121,18 +126,6 @@ class Favorite(RicipeUserModel):
 
 
 class ShoppingCart(RicipeUserModel):
-    recipe = models.ForeignKey(
-        Recipe,
-        related_name='carts',
-        verbose_name='Рецепт',
-        on_delete=models.CASCADE,
-    )
-    user = models.ForeignKey(
-        User,
-        related_name='carts',
-        verbose_name='Пользователь',
-        on_delete=models.CASCADE,
-    )
 
     class Meta:
         verbose_name = 'Список покупок'

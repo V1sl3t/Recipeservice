@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from django_short_url.views import get_surl
 
 from api.filters import IngredientFilter, RecipeFilter
-from api.permissions import IsStaffAuthenticatedAuthorOrReadOnly
+from api.permissions import AuthenticatedAuthorOrReadOnly
 from api.serializers import (FavoriteSerializer, IngredientSerializer,
                              RecipeCreateSerializer, RecipeGetSerializer,
                              ShoppingCartSerializer, TagSerialiser,
@@ -19,35 +19,7 @@ from api.serializers import (FavoriteSerializer, IngredientSerializer,
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             ShoppingCart, Tag)
 from users.models import (Subscription, User)
-
-
-def create_recipe_user_instance(request, instance, serializer_name):
-    serializer = serializer_name(
-        data={'user': request.user.id, 'recipe': instance.id, },
-        context={'request': request}
-    )
-    serializer.is_valid(raise_exception=True)
-    serializer.save()
-    return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-
-def delete_recipe_user_instance(request, model_name, instance, error_message):
-    if not model_name.objects.filter(user=request.user,
-                                     recipe=instance).exists():
-        return Response({'errors': error_message},
-                        status=status.HTTP_400_BAD_REQUEST)
-    model_name.objects.filter(user=request.user, recipe=instance).delete()
-    return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-def create_shopping_list(ingredients_queryset):
-    shopping_list = ['Список покупок:\n']
-    for ingredient in ingredients_queryset:
-        name = ingredient['ingredient__name']
-        unit = ingredient['ingredient__measurement_unit']
-        amount = ingredient['ingredient_amount']
-        shopping_list.append(f'\n{name} - {amount}, {unit}')
-    return shopping_list
+from .utils import create_shopping_list
 
 
 class FoodgramUserViewSet(UserViewSet):
@@ -62,9 +34,8 @@ class FoodgramUserViewSet(UserViewSet):
             methods=['put'],
             permission_classes=[IsAuthenticated])
     def avatar(self, request, id=None):
-        user = request.user
         serializer = AvatarSerializer(
-            user,
+            request.user,
             data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -132,7 +103,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
-    permission_classes = (IsStaffAuthenticatedAuthorOrReadOnly, )
+    permission_classes = (AuthenticatedAuthorOrReadOnly, )
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
     http_method_names = ['get', 'post', 'patch', 'delete']
@@ -141,6 +112,23 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if self.action in ('list', 'retrieve'):
             return RecipeGetSerializer
         return RecipeCreateSerializer
+
+    def create_recipe_user_instance(request, instance, serializer):
+        serializer = serializer(
+            data={'user': request.user.id, 'recipe': instance.id, },
+            context={'request': request}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def delete_recipe_user_instance(request, model, instance, error_message):
+        if not model.objects.filter(user=request.user,
+                                    recipe=instance).exists():
+            return Response({'errors': error_message},
+                            status=status.HTTP_400_BAD_REQUEST)
+        model.objects.filter(user=request.user, recipe=instance).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, url_path='get-link')
     def get_link(self, request, pk=None):
@@ -156,15 +144,18 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[IsAuthenticated, ]
     )
     def favorite(self, request, pk=None):
-        recipe = get_object_or_404(Recipe, id=pk)
-        return create_recipe_user_instance(request, recipe, FavoriteSerializer)
+        return self.create_recipe_user_instance(
+            request,
+            FavoriteSerializer,
+            instance=get_object_or_404(Recipe, id=pk))
 
     @favorite.mapping.delete
     def delete_favorite(self, request, pk=None):
-        recipe = get_object_or_404(Recipe, id=pk)
-        error_message = 'У вас нет этого рецепта в избранном'
-        return delete_recipe_user_instance(request, Favorite,
-                                           recipe, error_message)
+        return self.delete_recipe_user_instance(
+            request,
+            Favorite,
+            'У вас нет этого рецепта в избранном',
+            instance=get_object_or_404(Recipe, id=pk))
 
     @action(
         detail=True,
@@ -172,16 +163,18 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[IsAuthenticated, ]
     )
     def shopping_cart(self, request, pk=None):
-        recipe = get_object_or_404(Recipe, id=pk)
-        return create_recipe_user_instance(request,
-                                           recipe, ShoppingCartSerializer)
+        return self.create_recipe_user_instance(
+            request,
+            ShoppingCartSerializer,
+            instance=get_object_or_404(Recipe, id=pk))
 
     @shopping_cart.mapping.delete
     def delete_shopping_cart(self, request, pk=None):
-        recipe = get_object_or_404(Recipe, id=pk)
-        error_message = 'У вас нет этого рецепта в списке покупок'
-        return delete_recipe_user_instance(request, ShoppingCart,
-                                           recipe, error_message)
+        return self.delete_recipe_user_instance(
+            request,
+            ShoppingCart,
+            'У вас нет этого рецепта в списке покупок',
+            instance=get_object_or_404(Recipe, id=pk))
 
     @action(
         detail=False,
@@ -190,11 +183,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def download_shopping_cart(self, request):
         ingredients = RecipeIngredient.objects.filter(
-            recipe__carts__user=request.user
+            recipe__shoppingcarts__user=request.user
         ).values(
             'ingredient__name', 'ingredient__measurement_unit'
         ).annotate(ingredient_amount=Sum('amount'))
-        shopping_list = create_shopping_list(ingredients)
-        return FileResponse(shopping_list,
+        return FileResponse(create_shopping_list(ingredients),
                             as_attachment=True,
                             filename='shopping_list.txt')
