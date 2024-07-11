@@ -98,7 +98,7 @@ class FoodgramUserViewSet(UserViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @subscribe.mapping.delete
-    def subscribe(self, request, id=None):
+    def delete_subscribe(self, request, id=None):
         author = get_object_or_404(User, id=id)
         if not Subscription.objects.filter(user=request.user,
                                            author=author).exists():
@@ -165,7 +165,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return create_recipe_user_instance(request, recipe, FavoriteSerializer)
 
     @favorite.mapping.delete
-    def favorite_delete(self, request, pk=None):
+    def delete_favorite(self, request, pk=None):
         recipe = get_object_or_404(Recipe, id=pk)
         error_message = 'У вас нет этого рецепта в избранном'
         return delete_recipe_user_instance(request, Favorite,
@@ -182,7 +182,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                                            recipe, ShoppingCartSerializer)
 
     @shopping_cart.mapping.delete
-    def shopping_cart_delete(self, request, pk=None):
+    def delete_shopping_cart(self, request, pk=None):
         recipe = get_object_or_404(Recipe, id=pk)
         error_message = 'У вас нет этого рецепта в списке покупок'
         return delete_recipe_user_instance(request, ShoppingCart,
