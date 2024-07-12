@@ -212,7 +212,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         many=True,
         allow_null=False,
     )
-    image = Base64ImageField(required=True)
+    image = Base64ImageField(required=True, represent_in_base64=True)
 
     class Meta:
         model = Recipe
