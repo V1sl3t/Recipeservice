@@ -1,26 +1,15 @@
 import re
-import base64
 
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
-from django.core.files.base import ContentFile
+from drf_extra_fields.fields import Base64ImageField
 
 from foodgram_backend import constants
 from recipes.models import (Favorite, Ingredient, Recipe,
                             RecipeIngredient, ShoppingCart, Tag)
 from users.models import (User, Subscription)
-
-
-class Base64ImageField(serializers.ImageField):
-    def to_internal_value(self, data):
-        if isinstance(data, str) and data.startswith('data:image'):
-            format, imgstr = data.split(';base64,')
-            ext = format.split('/')[-1]
-            data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
-
-        return super().to_internal_value(data)
 
 
 def create_ingredients(ingredients, recipe):
@@ -229,11 +218,6 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         model = Recipe
         fields = ('ingredients', 'tags', 'image',
                   'name', 'text', 'cooking_time')
-
-    def validate_image(self, value):
-        if not value:
-            raise serializers.ValidationError(
-                'Поле image - пустое')
 
     def validate_cooking_time(self, value):
         if (value < constants.MIN_VALUE_COOCKING_TIME
