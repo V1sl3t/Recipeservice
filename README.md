@@ -30,4 +30,4 @@ sudo docker compose -f docker-compose.yml exec backend cp -r /app/collected_stat
 
 ## Автор проекта 
  
-V1sl3t ft.Yandex_Practicum
+V1sl3t
